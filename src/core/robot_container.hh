@@ -1,7 +1,10 @@
 #ifndef XFRC_CORE_ROBOT_CONTAINER_HH
 #define XFRC_CORE_ROBOT_CONTAINER_HH
 
+#include "constants/drive.hh"
+#include "drive/swerve_drive.hh"
 #include <cstdint>
+#include <frc2/command/button/CommandXboxController.h>
 
 namespace xfrc {
 
@@ -43,6 +46,10 @@ public:
     simulation_periodic() -> uint8_t;
 
 private:
+    td::swerve_drive drive { td::k::swerve::module::module_ids,
+                             td::k::swerve::module::center_offset };
+
+    frc2::CommandXboxController controller { 0 };
 };
 
 } // namespace xfrc
