@@ -48,8 +48,15 @@ auto
 swerve_drive::drive(units::meters_per_second_t  x_vel,
                     units::meters_per_second_t  y_vel,
                     units::radians_per_second_t angular_velocity) -> void {
-    auto states = get_states_for(x_vel, y_vel, angular_velocity);
-    // optimize_and_adopt_states(states);
+    adopt_states(get_states_for(x_vel, y_vel, angular_velocity));
+}
+
+auto
+swerve_drive::drive_optimized(units::meters_per_second_t  x_vel,
+                              units::meters_per_second_t  y_vel,
+                              units::radians_per_second_t angular_velocity)
+    -> void {
+    optimize_and_adopt_states(get_states_for(x_vel, y_vel, angular_velocity));
 }
 
 auto
@@ -58,7 +65,24 @@ swerve_drive::field_oriented_drive(units::meters_per_second_t  x_vel,
                                    units::radians_per_second_t angular_velocity)
     -> void {
     // TODO: MAKE IT FIELD ORIENTED
+    adopt_states(get_states_for(x_vel, y_vel, angular_velocity));
+}
+
+auto
+swerve_drive::field_oriented_drive_optimized(
+    units::meters_per_second_t  x_vel,
+    units::meters_per_second_t  y_vel,
+    units::radians_per_second_t angular_velocity) -> void {
+    // TODO: MAKE IT FIELD ORIENTED
     optimize_and_adopt_states(get_states_for(x_vel, y_vel, angular_velocity));
+}
+
+auto
+swerve_drive::reset() -> void {
+    _front_right.reset();
+    _front_left.reset();
+    _back_left.reset();
+    _back_right.reset();
 }
 
 auto

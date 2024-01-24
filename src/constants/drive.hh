@@ -11,7 +11,10 @@
 namespace td::k::swerve {
 
 namespace module {
-constexpr units::meter_t center_offset = 91_cm / 2.0;
+constexpr units::meter_t center_offset  = 16_in;
+constexpr units::meter_t wheel_diameter = 4_in;
+constexpr units::meter_t wheel_circumference =
+    wheel_diameter * std::numbers::pi;
 
 constexpr swerve_module_ids front_right_ids { 11, 12, 0 };
 constexpr swerve_module_ids front_left_ids { 21, 22, 1 };
@@ -26,7 +29,7 @@ constexpr std::array<swerve_module_ids, 4> module_ids { front_right_ids,
 } // namespace module
 
 namespace azimuth {
-constexpr double K_P = 0.0004;
+constexpr double K_P = 0.2;
 constexpr double K_I = 0.0;
 constexpr double K_D = 0.0;
 constexpr double K_F = 0.0;
@@ -38,21 +41,21 @@ constexpr double gear_ratio                 = (150.0 / 7.0) / 1.0;
 constexpr double position_conversion_factor = full_turn.value() / gear_ratio;
 constexpr double velocity_conversion_factor = position_conversion_factor * 60;
 
-constexpr units::radians_per_second_t angular_velocity { 0.5
-                                                         * std::numbers::pi };
+constexpr units::radians_per_second_t angular_velocity { std::numbers::pi };
 } // namespace azimuth
 
 namespace drive {
-constexpr double K_P = 6E-5;
+constexpr double K_P = 0.0006;
 constexpr double K_I = 0.0;
 constexpr double K_D = 0.0;
 constexpr double K_F = 0.0;
 
-constexpr double gear_ratio                 = 6.12 / 1.0;
-constexpr double position_conversion_factor = 1.0 / gear_ratio;
+constexpr double gear_ratio = 6.12 / 1.0;
+constexpr double position_conversion_factor =
+    module::wheel_circumference.value() / gear_ratio;
 constexpr double velocity_conversion_factor = position_conversion_factor * 60;
 
-constexpr units::meters_per_second_t velocity { 15 };
+constexpr units::meters_per_second_t velocity { 1 };
 
 } // namespace drive
 

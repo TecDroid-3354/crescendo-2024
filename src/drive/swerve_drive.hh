@@ -33,9 +33,22 @@ public:
           units::radians_per_second_t angular_velocity) -> void;
 
     auto
+    drive_optimized(units::meters_per_second_t  x_vel,
+                    units::meters_per_second_t  y_vel,
+                    units::radians_per_second_t angular_velocity) -> void;
+
+    auto
     field_oriented_drive(units::meters_per_second_t  x_vel,
                          units::meters_per_second_t  y_vel,
                          units::radians_per_second_t angular_velocity) -> void;
+
+    auto
+    field_oriented_drive_optimized(units::meters_per_second_t  x_vel,
+                                   units::meters_per_second_t  y_vel,
+                                   units::radians_per_second_t angular_velocity)
+        -> void;
+    auto
+    reset() -> void;
 
     auto
     log() -> void;

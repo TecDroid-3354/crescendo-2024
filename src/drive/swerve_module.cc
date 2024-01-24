@@ -5,6 +5,9 @@
 #include "rev/CANSparkBase.h"
 #include "rev/SparkAbsoluteEncoder.h"
 #include "units/angle.h"
+#include <algorithm>
+#include <cstdlib>
+#include <numbers>
 #include <string>
 
 namespace td {
@@ -31,6 +34,10 @@ swerve_module::swerve_module(swerve_module_ids ids, frc::Translation2d position)
 
     _azimuth_pid.SetOutputRange(-1.0, 1.0);
 
+    _azimuth_pid.SetPositionPIDWrappingEnabled(true);
+    _azimuth_pid.SetPositionPIDWrappingMinInput(-std::numbers::pi);
+    _azimuth_pid.SetPositionPIDWrappingMaxInput(std::numbers::pi);
+
     _drive_pid.SetP(k::swerve::drive::K_P);
     _drive_pid.SetI(k::swerve::drive::K_I);
     _drive_pid.SetD(k::swerve::drive::K_D);
@@ -41,6 +48,10 @@ swerve_module::swerve_module(swerve_module_ids ids, frc::Translation2d position)
         k::swerve::drive::velocity_conversion_factor);
 
     _drive_pid.SetOutputRange(-1.0, 1.0);
+
+    if (_drive.GetDeviceId() == 12) {
+        _drive.SetInverted(true);
+    }
 }
 
 auto
@@ -50,11 +61,21 @@ swerve_module::module_offset_from_center() -> frc::Translation2d {
 
 auto
 swerve_module::adopt_state(frc::SwerveModuleState state) -> void {
-    // _drive_pid.SetReference(state.speed.value(),
-    //                         rev::CANSparkBase::ControlType::kVelocity);
+    _drive_pid.SetReference(state.speed.value(),
+                            rev::CANSparkBase::ControlType::kVelocity);
 
-    _azimuth_pid.SetReference(state.angle.Radians().value(),
-                              rev::CANSparkBase::ControlType::kPosition);
+    _drive.Set(std::clamp(state.speed.value()
+                              / td::k::swerve::drive::velocity.value() * 0.5,
+                          -1.0,
+                          1.0));
+
+    frc::SmartDashboard::PutNumber(std::to_string(_azimuth.GetDeviceId())
+                                       + "Target Angle",
+                                   state.angle.Radians().value());
+
+    frc::SmartDashboard::PutNumber(std::to_string(_azimuth.GetDeviceId())
+                                       + "Target Velocity",
+                                   state.speed.value());
 }
 
 auto
@@ -63,8 +84,10 @@ swerve_module::optimize_and_adopt_state(frc::SwerveModuleState state) -> void {
         state,
         frc::Rotation2d { units::radian_t { _azimuth_encoder.GetPosition() } });
 
-    // _drive_pid.SetReference(state.speed.value(),
-    //                         rev::CANSparkBase::ControlType::kVelocity);
+    _drive.Set(std::clamp(new_state.speed.value()
+                              / td::k::swerve::drive::velocity.value(),
+                          -1.0,
+                          1.0));
 
     _azimuth_pid.SetReference(new_state.angle.Radians().value(),
                               rev::CANSparkBase::ControlType::kPosition);
@@ -72,6 +95,16 @@ swerve_module::optimize_and_adopt_state(frc::SwerveModuleState state) -> void {
     frc::SmartDashboard::PutNumber(std::to_string(_azimuth.GetDeviceId())
                                        + "Target Angle",
                                    new_state.angle.Radians().value());
+
+    frc::SmartDashboard::PutNumber(std::to_string(_azimuth.GetDeviceId())
+                                       + "Target Velocity",
+                                   new_state.speed.value());
+}
+
+auto
+swerve_module::reset() -> void {
+    _azimuth_encoder.SetPosition(0.0);
+    _drive_encoder.SetPosition(0.0);
 }
 
 auto
@@ -83,8 +116,6 @@ swerve_module::log() -> void {
     frc::SmartDashboard::PutNumber(std::to_string(_azimuth.GetDeviceId())
                                        + "Drive Velocity",
                                    _drive_encoder.GetVelocity());
-
-    _azimuth.Set(0.1);
 }
 
 } // namespace td

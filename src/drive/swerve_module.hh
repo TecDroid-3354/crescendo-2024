@@ -33,6 +33,9 @@ public:
     optimize_and_adopt_state(frc::SwerveModuleState state) -> void;
 
     auto
+    reset() -> void;
+
+    auto
     log() -> void;
 
 private:
