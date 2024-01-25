@@ -1,6 +1,8 @@
 #pragma once
 
+#include "units/velocity.h"
 #include <cstdint>
+#include <ctre/phoenix6/CANcoder.hpp>
 #include <frc/AnalogEncoder.h>
 #include <frc/geometry/Translation2d.h>
 #include <frc/kinematics/SwerveModulePosition.h>
@@ -13,15 +15,17 @@
 
 namespace td {
 
-struct swerve_module_ids {
+struct swerve_module_config {
     uint8_t azimuth_id;
     uint8_t drive_id;
     uint8_t cancoder_id;
+    bool    drive_inverted;
 };
 
 class swerve_module {
 public:
-    explicit swerve_module(swerve_module_ids ids, frc::Translation2d position);
+    explicit swerve_module(swerve_module_config config,
+                           frc::Translation2d   position);
 
     [[nodiscard]] auto
     module_offset_from_center() -> frc::Translation2d;
@@ -31,6 +35,12 @@ public:
 
     auto
     optimize_and_adopt_state(frc::SwerveModuleState state) -> void;
+
+    auto
+    azimuth_angle() -> units::radian_t;
+
+    auto
+    drive_velocity() -> units::meters_per_second_t;
 
     auto
     reset() -> void;
@@ -48,7 +58,7 @@ private:
     rev::SparkPIDController _azimuth_pid;
     rev::SparkPIDController _drive_pid;
 
-    frc::AnalogEncoder _azimuth_encoder_abs;
+    ctre::phoenix6::hardware::CANcoder _cancoder;
 
     frc::Translation2d _offset;
 };

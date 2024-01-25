@@ -11,8 +11,8 @@ namespace td {
 
 class swerve_drive {
 public:
-    explicit swerve_drive(std::array<swerve_module_ids, 4> module_ids,
-                          units::meter_t                   offset);
+    explicit swerve_drive(std::array<swerve_module_config, 4> module_ids,
+                          frc::Translation2d                  offset);
 
     auto
     get_states_for(units::meters_per_second_t  x_vel,

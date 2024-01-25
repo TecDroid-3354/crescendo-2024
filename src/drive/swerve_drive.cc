@@ -5,12 +5,13 @@
 
 namespace td {
 
-swerve_drive::swerve_drive(std::array<swerve_module_ids, 4> module_ids,
-                           units::meter_t                   offset)
-    : _front_right(module_ids [0], { offset, -offset })
-    , _front_left(module_ids [1], { offset, offset })
-    , _back_left(module_ids [2], { -offset, offset })
-    , _back_right(module_ids [3], { -offset, -offset })
+swerve_drive::swerve_drive(std::array<swerve_module_config, 4> module_ids,
+                           frc::Translation2d                  offset)
+    : _front_right(module_ids [0], { offset.X(), offset.Y() })
+    , _front_left(module_ids [1], { offset.X(), -offset.Y() })
+    , _back_left(module_ids [2], { -offset.X(), -offset.Y() })
+    , _back_right(module_ids [3], { -offset.X(), offset.Y() })
+
     , _kinematics(_front_right.module_offset_from_center(),
                   _front_left.module_offset_from_center(),
                   _back_left.module_offset_from_center(),

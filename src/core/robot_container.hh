@@ -46,8 +46,11 @@ public:
     simulation_periodic() -> uint8_t;
 
 private:
-    td::swerve_drive drive { td::k::swerve::module::module_ids,
-                             td::k::swerve::module::center_offset };
+    td::swerve_drive drive {
+        td::k::swerve::module::module_ids,
+        {td::k::swerve::module::forwards_offset,
+                                         td::k::swerve::module::sideways_offset}
+    };
 
     frc2::CommandXboxController controller { 0 };
 };

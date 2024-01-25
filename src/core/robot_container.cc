@@ -49,9 +49,9 @@ robot_container::teleop_init() -> uint8_t {
 auto
 robot_container::teleop_periodic() -> uint8_t {
     drive.drive_optimized(
-        td::k::swerve::drive::velocity * controller.GetLeftX(),
         td::k::swerve::drive::velocity * controller.GetLeftY(),
-        td::k::swerve::azimuth::angular_velocity * controller.GetRightX());
+        td::k::swerve::drive::velocity * controller.GetLeftX(),
+        -td::k::swerve::azimuth::angular_velocity * controller.GetRightX());
 
     frc::SmartDashboard::PutNumber("Controller LX", controller.GetLeftX());
     frc::SmartDashboard::PutNumber("Controller LY", controller.GetLeftY());
