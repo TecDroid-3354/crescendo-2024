@@ -2,6 +2,8 @@
 
 #include "drive/swerve_module.hh"
 #include "frc/kinematics/SwerveModuleState.h"
+#include "units/angle.h"
+#include <AHRS.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
@@ -47,6 +49,10 @@ public:
                                    units::meters_per_second_t  y_vel,
                                    units::radians_per_second_t angular_velocity)
         -> void;
+
+    auto
+    heading() -> units::radian_t;
+
     auto
     reset() -> void;
 
@@ -60,6 +66,8 @@ private:
     swerve_module _front_left;
     swerve_module _back_left;
     swerve_module _back_right;
+
+    AHRS gyro;
 
     frc::SwerveDriveKinematics<4> _kinematics;
 };

@@ -1,7 +1,10 @@
 #include "swerve_drive.hh"
 
 #include "frc/kinematics/ChassisSpeeds.h"
+#include "units/angle.h"
+#include "units/math.h"
 #include "units/velocity.h"
+#include <units/angle.h>
 
 namespace td {
 
@@ -11,6 +14,7 @@ swerve_drive::swerve_drive(std::array<swerve_module_config, 4> module_ids,
     , _front_left(module_ids [1], { offset.X(), -offset.Y() })
     , _back_left(module_ids [2], { -offset.X(), -offset.Y() })
     , _back_right(module_ids [3], { -offset.X(), offset.Y() })
+    , gyro(frc::SerialPort::kMXP)
 
     , _kinematics(_front_right.module_offset_from_center(),
                   _front_left.module_offset_from_center(),
@@ -74,8 +78,23 @@ swerve_drive::field_oriented_drive_optimized(
     units::meters_per_second_t  x_vel,
     units::meters_per_second_t  y_vel,
     units::radians_per_second_t angular_velocity) -> void {
-    // TODO: MAKE IT FIELD ORIENTED
-    optimize_and_adopt_states(get_states_for(x_vel, y_vel, angular_velocity));
+    units::radian_t theta = heading();
+
+    double cos_theta = units::math::cos(theta);
+    double sin_theta = units::math::sin(theta);
+
+    units::meters_per_second_t new_x_vel =
+        x_vel * cos_theta - y_vel * sin_theta;
+
+    units::meters_per_second_t new_y_vel =
+        x_vel * sin_theta - y_vel * cos_theta;
+
+    drive_optimized(new_x_vel, new_y_vel, angular_velocity);
+}
+
+auto
+swerve_drive::heading() -> units::radian_t {
+    return units::degree_t { static_cast<double>(gyro.GetYaw()) };
 }
 
 auto
