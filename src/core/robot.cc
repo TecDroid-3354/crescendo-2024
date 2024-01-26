@@ -11,6 +11,7 @@ auto
 robot::RobotInit() -> void {
     std::cout << "lol\n";
     _container.robot_init();
+    _container.set_up_binds();
 }
 
 auto

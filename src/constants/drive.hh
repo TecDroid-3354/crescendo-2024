@@ -54,7 +54,7 @@ namespace drive {
 constexpr double K_P = 0.0;
 constexpr double K_I = 0.0;
 constexpr double K_D = 0.0;
-constexpr double K_F = 0.07;
+constexpr double K_F = 0.197;
 
 constexpr double gear_ratio = 6.12 / 1.0;
 constexpr double position_conversion_factor =
@@ -62,7 +62,7 @@ constexpr double position_conversion_factor =
 constexpr double velocity_conversion_factor =
     position_conversion_factor * (1 / 60.0);
 
-constexpr units::meters_per_second_t velocity = 4_mps * 3.0;
+constexpr units::meters_per_second_t velocity = 4_mps;
 
 } // namespace drive
 

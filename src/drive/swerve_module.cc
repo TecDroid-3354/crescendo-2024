@@ -48,6 +48,7 @@ swerve_module::swerve_module(swerve_module_config config,
         k::swerve::drive::velocity_conversion_factor);
 
     _drive_pid.SetOutputRange(-1.0, 1.0);
+    _drive.SetClosedLoopRampRate(0.5);
 
     _drive.SetInverted(config.drive_inverted);
 }
@@ -87,6 +88,11 @@ swerve_module::azimuth_angle() -> units::radian_t {
 auto
 swerve_module::drive_velocity() -> units::meters_per_second_t {
     return units::meters_per_second_t { _drive_encoder.GetVelocity() };
+}
+
+auto
+swerve_module::align_forwards() -> void {
+    _azimuth_pid.SetReference(0, rev::CANSparkBase::ControlType::kPosition);
 }
 
 auto

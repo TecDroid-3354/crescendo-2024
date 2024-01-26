@@ -2,24 +2,32 @@
 
 #include "drive/swerve_module.hh"
 #include "frc/kinematics/SwerveModuleState.h"
+#include "frc2/command/Subsystem.h"
 #include "units/angle.h"
 #include <AHRS.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
+#include <frc2/command/Commands.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
 #include <units/velocity.h>
 
 namespace td {
 
-class swerve_drive {
+class swerve_drive : public frc2::Subsystem {
 public:
     explicit swerve_drive(std::array<swerve_module_config, 4> module_ids,
                           frc::Translation2d                  offset);
 
     auto
-    get_states_for(units::meters_per_second_t  x_vel,
-                   units::meters_per_second_t  y_vel,
-                   units::radians_per_second_t angular_velocity)
+    get_robot_centric_states_for(units::meters_per_second_t  x_vel,
+                                 units::meters_per_second_t  y_vel,
+                                 units::radians_per_second_t angular_velocity)
+        -> std::array<frc::SwerveModuleState, 4>;
+
+    auto
+    get_field_centric_states_for(units::meters_per_second_t  x_vel,
+                                 units::meters_per_second_t  y_vel,
+                                 units::radians_per_second_t angular_velocity)
         -> std::array<frc::SwerveModuleState, 4>;
 
     auto
@@ -51,6 +59,9 @@ public:
         -> void;
 
     auto
+    align_modules_forwards() -> void;
+
+    auto
     heading() -> units::radian_t;
 
     auto
@@ -67,7 +78,7 @@ private:
     swerve_module _back_left;
     swerve_module _back_right;
 
-    AHRS gyro;
+    AHRS _gyro;
 
     frc::SwerveDriveKinematics<4> _kinematics;
 };

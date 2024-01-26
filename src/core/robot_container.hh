@@ -4,6 +4,7 @@
 #include "constants/drive.hh"
 #include "drive/swerve_drive.hh"
 #include <cstdint>
+#include <frc2/command/CommandHelper.h>
 #include <frc2/command/button/CommandXboxController.h>
 
 namespace xfrc {
@@ -45,14 +46,17 @@ public:
     auto
     simulation_periodic() -> uint8_t;
 
-private:
-    td::swerve_drive drive {
-        td::k::swerve::module::module_ids,
-        {td::k::swerve::module::forwards_offset,
-                                         td::k::swerve::module::sideways_offset}
-    };
+    auto
+    set_up_binds() -> void;
 
-    frc2::CommandXboxController controller { 0 };
+private:
+    td::swerve_drive            drive;
+    frc2::CommandXboxController controller;
+
+    frc2::CommandPtr robot_oriented_drive_cmd;
+    frc2::CommandPtr field_oriented_drive_cmd;
+    frc2::CommandPtr align_swerve_cmd;
+    frc2::CommandPtr reset_swerve_cmd;
 };
 
 } // namespace xfrc

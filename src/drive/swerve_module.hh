@@ -43,6 +43,9 @@ public:
     drive_velocity() -> units::meters_per_second_t;
 
     auto
+    align_forwards() -> void;
+
+    auto
     reset() -> void;
 
     auto
