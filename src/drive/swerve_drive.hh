@@ -1,12 +1,12 @@
 #pragma once
 
 #include "drive/swerve_module.hh"
-#include "frc/kinematics/SwerveModuleState.h"
-#include "frc2/command/Subsystem.h"
-#include "units/angle.h"
 #include <AHRS.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
+#include <frc/kinematics/SwerveModuleState.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/Subsystem.h>
+#include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
 #include <units/velocity.h>
@@ -31,11 +31,7 @@ public:
         -> std::array<frc::SwerveModuleState, 4>;
 
     auto
-    adopt_states(std::array<frc::SwerveModuleState, 4> states) -> void;
-
-    auto
-    optimize_and_adopt_states(std::array<frc::SwerveModuleState, 4> states)
-        -> void;
+    adopt_state_array(std::array<frc::SwerveModuleState, 4> states) -> void;
 
     auto
     drive(units::meters_per_second_t  x_vel,
@@ -43,27 +39,35 @@ public:
           units::radians_per_second_t angular_velocity) -> void;
 
     auto
-    drive_optimized(units::meters_per_second_t  x_vel,
-                    units::meters_per_second_t  y_vel,
-                    units::radians_per_second_t angular_velocity) -> void;
-
-    auto
     field_oriented_drive(units::meters_per_second_t  x_vel,
                          units::meters_per_second_t  y_vel,
                          units::radians_per_second_t angular_velocity) -> void;
 
     auto
-    field_oriented_drive_optimized(units::meters_per_second_t  x_vel,
-                                   units::meters_per_second_t  y_vel,
-                                   units::radians_per_second_t angular_velocity)
-        -> void;
+    sync_modules_with_cancoders() -> void;
 
+    /**
+     * zeroes out the physical position of all moduels
+     */
     auto
-    align_modules_forwards() -> void;
+    zero_modules() -> void;
 
+    /**
+     * Returns the robot's heading angle (z-axis)
+     */
     auto
     heading() -> units::radian_t;
 
+    /**
+     * Resets the azimuth and drive encoders along with the absolute encoders as
+     * well as the gyro's angle
+     */
+    auto
+    full_reset() -> void;
+
+    /**
+     * Resets the azimuth and drive encoders as well as the gyro's angle
+     */
     auto
     reset() -> void;
 

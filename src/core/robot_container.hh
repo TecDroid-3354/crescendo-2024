@@ -52,11 +52,6 @@ public:
 private:
     td::swerve_drive            drive;
     frc2::CommandXboxController controller;
-
-    frc2::CommandPtr robot_oriented_drive_cmd;
-    frc2::CommandPtr field_oriented_drive_cmd;
-    frc2::CommandPtr align_swerve_cmd;
-    frc2::CommandPtr reset_swerve_cmd;
 };
 
 } // namespace xfrc
