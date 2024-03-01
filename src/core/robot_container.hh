@@ -50,7 +50,7 @@ public:
     set_up_binds() -> void;
 
 private:
-    td::swerve_drive            drive;
+    td::drive::swerve_drive     drive;
     frc2::CommandXboxController controller;
 };
 

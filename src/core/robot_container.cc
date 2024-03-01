@@ -10,20 +10,19 @@
 namespace xfrc {
 
 robot_container::robot_container()
-    : drive(td::k::swerve::module::module_ids,
-            { td::k::swerve::module::forwards_offset,
-              td::k::swerve::module::sideways_offset })
+    : drive(td::drive::k::SWERVE_SETTINGS)
     , controller(0) { }
 
 auto
 robot_container::robot_init() -> uint8_t {
+    drive.seed_azimuth_encoders();
+
     return 0;
 }
 
 auto
 robot_container::robot_periodic() -> uint8_t {
-    drive.sync_modules_with_cancoders();
-    drive.log();
+    drive.log_values();
     frc::SmartDashboard::PutNumber("Controller LX", controller.GetLeftX());
     frc::SmartDashboard::PutNumber("Controller LY", controller.GetLeftY());
     frc::SmartDashboard::PutNumber("Controller RX", controller.GetRightX());
@@ -42,6 +41,8 @@ robot_container::disabled_periodic() -> uint8_t {
 
 auto
 robot_container::autonomous_init() -> uint8_t {
+    drive.seed_azimuth_encoders();
+
     return 0;
 }
 
@@ -52,20 +53,29 @@ robot_container::autonomous_periodic() -> uint8_t {
 
 auto
 robot_container::teleop_init() -> uint8_t {
+    drive.seed_azimuth_encoders();
+
+    drive.set_module_angles(0_rad);
+
     drive.SetDefaultCommand(frc2::cmd::Run(
         [this] {
-            this->drive.drive(-controller.GetLeftY() * td::k::swerve::velocity,
-                              +controller.GetLeftX() * td::k::swerve::velocity,
-                              controller.GetRightX()
-                                  * td::k::swerve::angular_velocity);
+            this->drive.drive(
+                -controller.GetLeftY() * td::drive::k::MAX_VELOCITY,
+                -controller.GetLeftX() * td::drive::k::MAX_VELOCITY,
+                controller.GetRightX() * td::drive::k::MAX_ANGULAR_VELOCITY,
+                td::drive::swerve_drive_orientation_target::ROBOT_CENTRIC);
         },
         { &drive }));
+
     return 0;
 }
 
 auto
 robot_container::teleop_periodic() -> uint8_t {
     return 0;
+    if (controller.GetXButton()) {
+        drive.seed_azimuth_encoders();
+    }
 }
 
 auto

@@ -1,5 +1,7 @@
 #include "swerve_drive.hh"
 
+#include "frc/kinematics/SwerveModuleState.h"
+#include <array>
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/CommandHelper.h>
@@ -8,125 +10,110 @@
 #include <units/math.h>
 #include <units/velocity.h>
 
-namespace td {
+namespace td::drive {
 
-swerve_drive::swerve_drive(std::array<swerve_module_config, 4> module_ids,
-                           frc::Translation2d                  offset)
-    : _front_right(module_ids [0], { offset.X(), offset.Y() })
-    , _front_left(module_ids [1], { offset.X(), -offset.Y() })
-    , _back_left(module_ids [2], { -offset.X(), -offset.Y() })
-    , _back_right(module_ids [3], { -offset.X(), offset.Y() })
+swerve_drive::swerve_drive(swerve_drive_settings settings_)
+    : _front_right(settings_.front_right_settings)
+    , _front_left(settings_.front_left_settings)
+    , _back_left(settings_.back_left_settings)
+    , _back_right(settings_.back_right_settings)
     , _gyro(frc::SerialPort::kMXP)
+    , _kinematics(
+          settings_.front_right_settings.manhattan_offset_from_robot_center,
+          settings_.front_left_settings.manhattan_offset_from_robot_center,
+          settings_.back_left_settings.manhattan_offset_from_robot_center,
+          settings_.back_right_settings.manhattan_offset_from_robot_center) { }
 
-    , _kinematics(_front_right.module_offset_from_center(),
-                  _front_left.module_offset_from_center(),
-                  _back_left.module_offset_from_center(),
-                  _back_right.module_offset_from_center()) {
-    _gyro.Reset();
-    _gyro.ZeroYaw();
-    _gyro.Calibrate();
+auto
+swerve_drive::calculate_target_states(
+    units::velocity::meters_per_second_t          forward_velocity_,
+    units::velocity::meters_per_second_t          sideways_velocity_,
+    units::angular_velocity::radians_per_second_t angular_velocity_,
+    swerve_drive_orientation_target               target_,
+    frc::Translation2d center_of_rotation_) -> swerve_drive_target_states {
+    std::array<frc::SwerveModuleState, 4> states;
+    switch (target_) {
+    case ROBOT_CENTRIC :
+        states = _kinematics.ToSwerveModuleStates(
+            frc::ChassisSpeeds { forward_velocity_,
+                                 sideways_velocity_,
+                                 angular_velocity_ },
+            center_of_rotation_);
+        break;
+    case FIELD_CENTRIC :
+        states = _kinematics.ToSwerveModuleStates(
+            frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+                forward_velocity_,
+                sideways_velocity_,
+                angular_velocity_,
+                { units::angle::radian_t {
+                    static_cast<double>(_gyro.GetYaw()) } }),
+            center_of_rotation_);
+        break;
+    case GLOBE_CENTRIC :
+        states = _kinematics.ToSwerveModuleStates(
+            frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+                forward_velocity_,
+                sideways_velocity_,
+                angular_velocity_,
+                { units::angle::radian_t {
+                    static_cast<double>(_gyro.GetCompassHeading()) } }),
+            center_of_rotation_);
+        break;
+    }
+
+    swerve_drive_target_states resulting_states {
+        .front_right_target = _front_right.optimize_state(states [FRM_IDX]),
+        .front_left_target  = _front_left.optimize_state(states [FLM_IDX]),
+        .back_left_target   = _back_left.optimize_state(states [BLM_IDX]),
+        .back_right_target  = _back_right.optimize_state(states [BRM_IDX])
+    };
+
+    return resulting_states;
 }
 
 auto
-swerve_drive::get_robot_centric_states_for(
-    units::meters_per_second_t  x_vel,
-    units::meters_per_second_t  y_vel,
-    units::radians_per_second_t angular_velocity)
-    -> std::array<frc::SwerveModuleState, 4> {
-    frc::ChassisSpeeds speeds = { x_vel, y_vel, angular_velocity };
+swerve_drive::drive(
+    units::velocity::meters_per_second_t          forward_velocity_,
+    units::velocity::meters_per_second_t          sideways_velocity_,
+    units::angular_velocity::radians_per_second_t angular_velocity_,
+    swerve_drive_orientation_target               target_orientation_,
+    frc::Translation2d                            center_of_rotation_) -> void {
+    swerve_drive_target_states states =
+        calculate_target_states(forward_velocity_,
+                                sideways_velocity_,
+                                angular_velocity_,
+                                target_orientation_,
+                                center_of_rotation_);
 
-    return _kinematics.ToSwerveModuleStates(speeds);
+    _front_right.adopt_state(states.front_right_target);
+    _front_left.adopt_state(states.front_left_target);
+    _back_left.adopt_state(states.back_left_target);
+    _back_right.adopt_state(states.back_right_target);
 }
 
 auto
-swerve_drive::get_field_centric_states_for(
-    units::meters_per_second_t  x_vel,
-    units::meters_per_second_t  y_vel,
-    units::radians_per_second_t angular_velocity)
-    -> std::array<frc::SwerveModuleState, 4> {
-    frc::ChassisSpeeds speeds =
-        frc::ChassisSpeeds::FromFieldRelativeSpeeds(x_vel,
-                                                    y_vel,
-                                                    angular_velocity,
-                                                    heading());
-
-    return _kinematics.ToSwerveModuleStates(speeds);
+swerve_drive::seed_azimuth_encoders() -> void {
+    _front_right.seed_angle_from_absolute_encoder();
+    _front_left.seed_angle_from_absolute_encoder();
+    _back_left.seed_angle_from_absolute_encoder();
+    _back_right.seed_angle_from_absolute_encoder();
 }
 
 auto
-swerve_drive::adopt_state_array(std::array<frc::SwerveModuleState, 4> states)
-    -> void {
-    _front_right.adopt_state(_front_right.optimize_state(states [0]));
-    _front_left.adopt_state(_front_left.optimize_state(states [1]));
-    _back_left.adopt_state(_back_left.optimize_state(states [2]));
-    _back_right.adopt_state(_back_right.optimize_state(states [3]));
+swerve_drive::set_module_angles(units::angle::radian_t angle_) -> void {
+    _front_right.azimuth_motor().set_target_angle(angle_);
+    _front_left.azimuth_motor().set_target_angle(angle_);
+    _back_left.azimuth_motor().set_target_angle(angle_);
+    _back_right.azimuth_motor().set_target_angle(angle_);
 }
 
 auto
-swerve_drive::drive(units::meters_per_second_t  x_vel,
-                    units::meters_per_second_t  y_vel,
-                    units::radians_per_second_t angular_velocity) -> void {
-    auto module_states =
-        get_robot_centric_states_for(x_vel, y_vel, angular_velocity);
-    adopt_state_array(module_states);
+swerve_drive::log_values() -> void {
+    _front_right.log_values();
+    _front_left.log_values();
+    _back_left.log_values();
+    _back_right.log_values();
 }
 
-auto
-swerve_drive::field_oriented_drive(units::meters_per_second_t  x_vel,
-                                   units::meters_per_second_t  y_vel,
-                                   units::radians_per_second_t angular_velocity)
-    -> void {
-    auto module_states =
-        get_field_centric_states_for(x_vel, y_vel, angular_velocity);
-    adopt_state_array(module_states);
-}
-
-auto
-swerve_drive::sync_modules_with_cancoders() -> void {
-    _front_right.sync_integrated_encoder_with_cancoder();
-    _front_left.sync_integrated_encoder_with_cancoder();
-    _back_left.sync_integrated_encoder_with_cancoder();
-    _back_right.sync_integrated_encoder_with_cancoder();
-}
-
-auto
-swerve_drive::zero_modules() -> void {
-    _front_right.zero_azimuth();
-    _front_left.zero_azimuth();
-    _back_left.zero_azimuth();
-    _back_right.zero_azimuth();
-}
-
-auto
-swerve_drive::heading() -> units::radian_t {
-    return units::degree_t { static_cast<double>(_gyro.GetYaw()) };
-}
-
-auto
-swerve_drive::full_reset() -> void {
-    _front_right.full_reset();
-    _front_left.full_reset();
-    _back_left.full_reset();
-    _back_right.full_reset();
-    _gyro.ZeroYaw();
-}
-
-auto
-swerve_drive::reset() -> void {
-    _front_right.reset_position();
-    _front_left.reset_position();
-    _back_left.reset_position();
-    _back_right.reset_position();
-    _gyro.ZeroYaw();
-}
-
-auto
-swerve_drive::log() -> void {
-    _front_right.log();
-    _front_left.log();
-    _back_left.log();
-    _back_right.log();
-    frc::SmartDashboard::PutNumber("Robot Angle", heading().value());
-}
-
-} // namespace td
+} // namespace td::drive

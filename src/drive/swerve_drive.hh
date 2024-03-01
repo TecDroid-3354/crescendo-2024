@@ -1,7 +1,11 @@
 #pragma once
 
+#include "drive/settings.hh"
 #include "drive/swerve_module.hh"
+#include "frc/geometry/Rotation2d.h"
+#include "frc/geometry/Translation2d.h"
 #include <AHRS.h>
+#include <cstdint>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc2/command/Commands.h>
@@ -11,72 +15,50 @@
 #include <units/length.h>
 #include <units/velocity.h>
 
-namespace td {
+namespace td::drive {
+
+uint8_t constexpr FRM_IDX = 0;
+uint8_t constexpr FLM_IDX = 1;
+uint8_t constexpr BLM_IDX = 2;
+uint8_t constexpr BRM_IDX = 3;
+
+enum swerve_drive_orientation_target {
+    ROBOT_CENTRIC,
+    FIELD_CENTRIC,
+    GLOBE_CENTRIC
+};
 
 class swerve_drive : public frc2::Subsystem {
 public:
-    explicit swerve_drive(std::array<swerve_module_config, 4> module_ids,
-                          frc::Translation2d                  offset);
+    explicit swerve_drive(swerve_drive_settings settings_);
 
     auto
-    get_robot_centric_states_for(units::meters_per_second_t  x_vel,
-                                 units::meters_per_second_t  y_vel,
-                                 units::radians_per_second_t angular_velocity)
-        -> std::array<frc::SwerveModuleState, 4>;
+    calculate_target_states(
+        units::velocity::meters_per_second_t          forward_velocity_,
+        units::velocity::meters_per_second_t          sideways_velocity_,
+        units::angular_velocity::radians_per_second_t angular_velocity_,
+        swerve_drive_orientation_target               target_,
+        frc::Translation2d center_of_rotation_ = frc::Translation2d {})
+        -> swerve_drive_target_states;
 
     auto
-    get_field_centric_states_for(units::meters_per_second_t  x_vel,
-                                 units::meters_per_second_t  y_vel,
-                                 units::radians_per_second_t angular_velocity)
-        -> std::array<frc::SwerveModuleState, 4>;
+    drive(units::velocity::meters_per_second_t          forward_velocity_,
+          units::velocity::meters_per_second_t          sideways_velocity_,
+          units::angular_velocity::radians_per_second_t angular_velocity_,
+          swerve_drive_orientation_target               target_,
+          frc::Translation2d center_of_rotation_ = frc::Translation2d {})
+        -> void;
 
     auto
-    adopt_state_array(std::array<frc::SwerveModuleState, 4> states) -> void;
+    seed_azimuth_encoders() -> void;
 
     auto
-    drive(units::meters_per_second_t  x_vel,
-          units::meters_per_second_t  y_vel,
-          units::radians_per_second_t angular_velocity) -> void;
+    set_module_angles(units::angle::radian_t angle_) -> void;
 
     auto
-    field_oriented_drive(units::meters_per_second_t  x_vel,
-                         units::meters_per_second_t  y_vel,
-                         units::radians_per_second_t angular_velocity) -> void;
-
-    auto
-    sync_modules_with_cancoders() -> void;
-
-    /**
-     * zeroes out the physical position of all moduels
-     */
-    auto
-    zero_modules() -> void;
-
-    /**
-     * Returns the robot's heading angle (z-axis)
-     */
-    auto
-    heading() -> units::radian_t;
-
-    /**
-     * Resets the azimuth and drive encoders along with the absolute encoders as
-     * well as the gyro's angle
-     */
-    auto
-    full_reset() -> void;
-
-    /**
-     * Resets the azimuth and drive encoders as well as the gyro's angle
-     */
-    auto
-    reset() -> void;
-
-    auto
-    log() -> void;
+    log_values() -> void;
 
 private:
-    // Y IS LEFT IN WPILIB
-
     swerve_module _front_right;
     swerve_module _front_left;
     swerve_module _back_left;
@@ -84,7 +66,8 @@ private:
 
     AHRS _gyro;
 
+    long                          _padding_;
     frc::SwerveDriveKinematics<4> _kinematics;
 };
 
-} // namespace td
+} // namespace td::drive
