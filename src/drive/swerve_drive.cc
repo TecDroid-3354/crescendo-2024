@@ -6,6 +6,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/CommandHelper.h>
 #include <frc2/command/Commands.h>
+#include <iostream>
 #include <units/angle.h>
 #include <units/math.h>
 #include <units/velocity.h>

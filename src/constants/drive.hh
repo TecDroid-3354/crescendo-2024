@@ -87,7 +87,7 @@ constexpr util::motor_controller_settings BACK_RIGHT_CONTROLLER_SETTINGS {
 
 namespace azimuth {
 
-constexpr double K_P = 0.25;
+constexpr double K_P = 0.35;
 constexpr double K_I = 0.0;
 constexpr double K_D = 0.0;
 constexpr double K_F = 0.0;

@@ -2,6 +2,7 @@
 
 #include "frc/smartdashboard/SmartDashboard.h"
 #include "rev/SparkRelativeEncoder.h"
+#include <iostream>
 #include <numbers>
 #include <string>
 
@@ -134,6 +135,7 @@ swerve_module_azimuth_motor::set_target_angle(units::angle::radian_t angle_)
 
 auto
 swerve_module_azimuth_motor::seed_angle(units::angle::radian_t angle_) -> void {
+    std::cout << "Seeded encoders\n";
     this->_encoder.SetPosition(angle_.value());
 }
 

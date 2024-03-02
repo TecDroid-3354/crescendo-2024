@@ -55,15 +55,18 @@ auto
 robot_container::teleop_init() -> uint8_t {
     drive.seed_azimuth_encoders();
 
-    drive.set_module_angles(0_rad);
-
     drive.SetDefaultCommand(frc2::cmd::Run(
         [this] {
-            this->drive.drive(
-                -controller.GetLeftY() * td::drive::k::MAX_VELOCITY,
-                -controller.GetLeftX() * td::drive::k::MAX_VELOCITY,
-                controller.GetRightX() * td::drive::k::MAX_ANGULAR_VELOCITY,
-                td::drive::swerve_drive_orientation_target::ROBOT_CENTRIC);
+            if (controller.GetXButton()) {
+                drive.seed_azimuth_encoders();
+                drive.set_module_angles(0_rad);
+            } else {
+                this->drive.drive(
+                    controller.GetLeftY() * td::drive::k::MAX_VELOCITY,
+                    controller.GetLeftX() * td::drive::k::MAX_VELOCITY,
+                    controller.GetRightX() * td::drive::k::MAX_ANGULAR_VELOCITY,
+                    td::drive::swerve_drive_orientation_target::ROBOT_CENTRIC);
+            }
         },
         { &drive }));
 
@@ -73,9 +76,6 @@ robot_container::teleop_init() -> uint8_t {
 auto
 robot_container::teleop_periodic() -> uint8_t {
     return 0;
-    if (controller.GetXButton()) {
-        drive.seed_azimuth_encoders();
-    }
 }
 
 auto
