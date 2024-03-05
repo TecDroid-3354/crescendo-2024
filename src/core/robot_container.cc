@@ -1,6 +1,8 @@
 #include "robot_container.hh"
 
 #include "constants/drive.hh"
+#include "constants/indexer.hh"
+#include "constants/shooter.hh"
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/Commands.h>
@@ -11,6 +13,8 @@ namespace xfrc {
 
 robot_container::robot_container()
     : drive(td::drive::k::SWERVE_SETTINGS)
+    , shooter(td::subsystem::shooter::k::SHOOTER_SETTINGS)
+    , indexer(td::subsystem::indexer::k::INDEXER_SETTINGS)
     , controller(0) { }
 
 auto
@@ -75,6 +79,10 @@ robot_container::teleop_init() -> uint8_t {
 
 auto
 robot_container::teleop_periodic() -> uint8_t {
+    shooter.set_percentage(controller.GetRightTriggerAxis()
+                           - controller.GetLeftTriggerAxis());
+
+    indexer.set_percentage(controller.GetBButton() ? 0.8 : 0);
     return 0;
 }
 

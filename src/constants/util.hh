@@ -1,16 +1,20 @@
 #pragma once
 
 #include <cstdint>
+#include <rev/CANSparkMax.h>
 #include <units/time.h>
 
 namespace td::util {
 
 struct motor_controller_settings {
-    uint8_t               id               = 0;
-    bool                  is_inverted      = false;
-    bool                  is_disabled      = false;
-    units::time::second_t open_ramp_rate   = 0.0_s;
-    units::time::second_t closed_ramp_rate = 0.0_s;
+    uint8_t                     id               = 0;
+    bool                        is_inverted      = false;
+    bool                        is_disabled      = false;
+    units::time::second_t       open_ramp_rate   = 0.0_s;
+    units::time::second_t       closed_ramp_rate = 0.0_s;
+    rev::CANSparkMax::MotorType motor_type =
+        rev::CANSparkMax::MotorType::kBrushless;
+    rev::CANSparkMax::IdleMode idle_mode = rev::CANSparkMax::IdleMode::kBrake;
 };
 
 struct encoder_settings {

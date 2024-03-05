@@ -56,7 +56,9 @@ constexpr util::motor_controller_settings FRONT_RIGHT_CONTROLLER_SETTINGS {
     .is_inverted      = true,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
 };
 
 constexpr util::motor_controller_settings FRONT_LEFT_CONTROLLER_SETTINGS {
@@ -64,7 +66,10 @@ constexpr util::motor_controller_settings FRONT_LEFT_CONTROLLER_SETTINGS {
     .is_inverted      = false,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
+
 };
 
 constexpr util::motor_controller_settings BACK_LEFT_CONTROLLER_SETTINGS {
@@ -72,7 +77,10 @@ constexpr util::motor_controller_settings BACK_LEFT_CONTROLLER_SETTINGS {
     .is_inverted      = false,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
+
 };
 
 constexpr util::motor_controller_settings BACK_RIGHT_CONTROLLER_SETTINGS {
@@ -80,7 +88,10 @@ constexpr util::motor_controller_settings BACK_RIGHT_CONTROLLER_SETTINGS {
     .is_inverted      = true,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
+
 };
 
 } // namespace drive
@@ -118,7 +129,10 @@ constexpr util::motor_controller_settings FRONT_RIGHT_CONTROLLER_SETTINGS {
     .is_inverted      = true,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
+
 };
 
 constexpr util::motor_controller_settings FRONT_LEFT_CONTROLLER_SETTINGS {
@@ -126,7 +140,10 @@ constexpr util::motor_controller_settings FRONT_LEFT_CONTROLLER_SETTINGS {
     .is_inverted      = true,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
+
 };
 
 constexpr util::motor_controller_settings BACK_LEFT_CONTROLLER_SETTINGS {
@@ -134,7 +151,10 @@ constexpr util::motor_controller_settings BACK_LEFT_CONTROLLER_SETTINGS {
     .is_inverted      = true,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
+
 };
 
 constexpr util::motor_controller_settings BACK_RIGHT_CONTROLLER_SETTINGS {
@@ -142,7 +162,10 @@ constexpr util::motor_controller_settings BACK_RIGHT_CONTROLLER_SETTINGS {
     .is_inverted      = true,
     .is_disabled      = false,
     .open_ramp_rate   = RAMP_RATE,
-    .closed_ramp_rate = RAMP_RATE
+    .closed_ramp_rate = RAMP_RATE,
+    .motor_type       = rev::CANSparkMax::MotorType::kBrushless,
+    .idle_mode        = rev::CANSparkMax::IdleMode::kBrake
+
 };
 
 } // namespace azimuth

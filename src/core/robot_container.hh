@@ -3,6 +3,8 @@
 
 #include "constants/drive.hh"
 #include "drive/swerve_drive.hh"
+#include "indexer/indexer.hh"
+#include "shooter/shooter.hh"
 #include <cstdint>
 #include <frc2/command/CommandHelper.h>
 #include <frc2/command/button/CommandXboxController.h>
@@ -50,8 +52,10 @@ public:
     set_up_binds() -> void;
 
 private:
-    td::drive::swerve_drive     drive;
-    frc2::CommandXboxController controller;
+    td::drive::swerve_drive         drive;
+    td::subsystem::shooter::shooter shooter;
+    td::subsystem::indexer::indexer indexer;
+    frc2::CommandXboxController     controller;
 };
 
 } // namespace xfrc

@@ -21,6 +21,7 @@ swerve_module_drive_motor::swerve_module_drive_motor(
     _controller.SetInverted(motor_settings_.is_inverted);
     _controller.SetOpenLoopRampRate(motor_settings_.open_ramp_rate.value());
     _controller.SetClosedLoopRampRate(motor_settings_.closed_ramp_rate.value());
+    _controller.SetIdleMode(motor_settings_.idle_mode);
 
     _encoder.SetPositionConversionFactor(
         encoder_settings_.position_conversion_factor);
@@ -104,6 +105,7 @@ swerve_module_azimuth_motor::swerve_module_azimuth_motor(
     _controller.SetInverted(motor_settings_.is_inverted);
     _controller.SetOpenLoopRampRate(motor_settings_.open_ramp_rate.value());
     _controller.SetClosedLoopRampRate(motor_settings_.closed_ramp_rate.value());
+    _controller.SetIdleMode(motor_settings_.idle_mode);
 
     _pid_controller.SetP(pid_settings_.k_p);
     _pid_controller.SetI(pid_settings_.k_i);
