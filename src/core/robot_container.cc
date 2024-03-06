@@ -15,6 +15,7 @@ robot_container::robot_container()
     : drive(td::drive::k::SWERVE_SETTINGS)
     , shooter(td::subsystem::shooter::k::SHOOTER_SETTINGS)
     , indexer(td::subsystem::indexer::k::INDEXER_SETTINGS)
+    , intake(td::subsystem::intake::k::INTAKE_SETTINGS)
     , controller(0) { }
 
 auto
@@ -61,7 +62,7 @@ robot_container::teleop_init() -> uint8_t {
 
     drive.SetDefaultCommand(frc2::cmd::Run(
         [this] {
-            if (controller.GetXButton()) {
+            if (controller.GetLeftStickButton()) {
                 drive.seed_azimuth_encoders();
                 drive.set_module_angles(0_rad);
             } else {
@@ -83,6 +84,10 @@ robot_container::teleop_periodic() -> uint8_t {
                            - controller.GetLeftTriggerAxis());
 
     indexer.set_percentage(controller.GetBButton() ? 0.8 : 0);
+    indexer.set_percentage(controller.GetXButton() ? -0.8 : 0);
+
+    intake.set_percentage(controller.GetAButton() ? 0.8 : 0);
+    intake.set_percentage(controller.GetYButton() ? -0.8 : 0);
     return 0;
 }
 

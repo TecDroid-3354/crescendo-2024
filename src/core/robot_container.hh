@@ -4,6 +4,7 @@
 #include "constants/drive.hh"
 #include "drive/swerve_drive.hh"
 #include "indexer/indexer.hh"
+#include "intake/intake.hh"
 #include "shooter/shooter.hh"
 #include <cstdint>
 #include <frc2/command/CommandHelper.h>
@@ -55,7 +56,9 @@ private:
     td::drive::swerve_drive         drive;
     td::subsystem::shooter::shooter shooter;
     td::subsystem::indexer::indexer indexer;
-    frc2::CommandXboxController     controller;
+    td::subsystem::intake::intake   intake;
+
+    frc2::CommandXboxController controller;
 };
 
 } // namespace xfrc
